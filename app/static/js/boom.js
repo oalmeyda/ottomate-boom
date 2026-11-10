@@ -37,97 +37,29 @@ let gameState = {
   threeBv: 0,
 };
 
-// Web Audio API Sound Synthesizer
-let audioCtx = null;
-function getAudioContext() {
-  if (!audioCtx) {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (AudioContextClass) {
-      audioCtx = new AudioContextClass();
-    }
-  }
-  if (audioCtx && audioCtx.state === "suspended") {
-    audioCtx.resume();
-  }
-  return audioCtx;
-}
-
+// Web Audio API Sound Synthesizer (delegates to shared ottomate-audio.js)
 function playClickSound() {
-  const ctx = getAudioContext();
-  if (!ctx) return;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = "triangle";
-  osc.frequency.setValueAtTime(440, ctx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.05);
-  gain.gain.setValueAtTime(0.15, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.start();
-  osc.stop(ctx.currentTime + 0.05);
+  if (window.Ottomate?.audio?.playClick) {
+    window.Ottomate.audio.playClick();
+  }
 }
 
 function playFlagSound() {
-  const ctx = getAudioContext();
-  if (!ctx) return;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = "sine";
-  osc.frequency.setValueAtTime(600, ctx.currentTime);
-  osc.frequency.setValueAtTime(800, ctx.currentTime + 0.04);
-  gain.gain.setValueAtTime(0.2, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.start();
-  osc.stop(ctx.currentTime + 0.08);
+  if (window.Ottomate?.audio?.playFlag) {
+    window.Ottomate.audio.playFlag();
+  }
 }
 
 function playBoomSound() {
-  const ctx = getAudioContext();
-  if (!ctx) return;
-  // White noise explosion burst
-  const bufferSize = ctx.sampleRate * 0.5;
-  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < bufferSize; i++) {
-    data[i] = Math.random() * 2 - 1;
+  if (window.Ottomate?.audio?.playExplosion) {
+    window.Ottomate.audio.playExplosion();
   }
-  const noise = ctx.createBufferSource();
-  noise.buffer = buffer;
-  const filter = ctx.createBiquadFilter();
-  filter.type = "lowpass";
-  filter.frequency.setValueAtTime(800, ctx.currentTime);
-  filter.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.45);
-  const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0.4, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45);
-  noise.connect(filter);
-  filter.connect(gain);
-  gain.connect(ctx.destination);
-  noise.start();
-  noise.stop(ctx.currentTime + 0.5);
 }
 
 function playWinSound() {
-  const ctx = getAudioContext();
-  if (!ctx) return;
-  const notes = [261.63, 329.63, 392.0, 523.25]; // C4, E4, G4, C5
-  notes.forEach((freq, idx) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "square";
-    osc.frequency.value = freq;
-    const startTime = ctx.currentTime + idx * 0.1;
-    gain.gain.setValueAtTime(0, startTime);
-    gain.gain.linearRampToValueAtTime(0.2, startTime + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.25);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(startTime);
-    osc.stop(startTime + 0.25);
-  });
+  if (window.Ottomate?.audio?.playWinFanfare) {
+    window.Ottomate.audio.playWinFanfare();
+  }
 }
 
 // Pseudo-Random Number Generator (seeded)
@@ -1003,6 +935,19 @@ function escapeHtml(str) {
 
 // --- API Fetch Helper ---
 async function apiFetch(path, options = {}) {
+  if (window.Ottomate && typeof window.Ottomate.api === "function") {
+    try {
+      const data = await window.Ottomate.api(path, options);
+      return { ok: true, status: 200, json: async () => data };
+    } catch (err) {
+      if (err.status === 401) onUserSignedOut();
+      return {
+        ok: false,
+        status: err.status || 500,
+        json: async () => ({ detail: err.message }),
+      };
+    }
+  }
   const headers = options.headers ? { ...options.headers } : {};
   const token =
     (typeof window.Ottomate?.getStoredAuthToken === "function"
