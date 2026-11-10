@@ -628,16 +628,12 @@ async function submitFinishResult(status) {
       first_click: gameState.firstClick,
     };
 
-    const res = await apiFetch("/api/game/finish", {
+    await apiFetch("/api/game/finish", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: payload,
     });
-
-    if (res.ok) {
-      if (currentMode === "daily") {
-        fetchDailyStatus();
-      }
+    if (currentMode === "daily") {
+      fetchDailyStatus();
     }
   } catch (err) {
     console.error("Failed submitting game result:", err);
@@ -705,9 +701,8 @@ function toggleFlagMode() {
 async function fetchDailyStatus() {
   if (!currentUser) return;
   try {
-    const res = await apiFetch(`/api/daily/status?date=${currentDate}`);
-    if (res.ok) {
-      const data = await res.json();
+    const data = await apiFetch(`/api/daily/status?date=${currentDate}`);
+    if (data) {
       updateDailyStatusBadges(data);
     }
   } catch (err) {
@@ -768,11 +763,8 @@ async function fetchLeaderboardData() {
     if (currentLbScope === "daily") {
       url += `&date=${currentDate}`;
     }
-    const res = await apiFetch(url);
-    if (!res.ok) throw new Error("Failed fetching leaderboard");
-    const data = await res.json();
-
-    if (!data.leaderboard || data.leaderboard.length === 0) {
+    const data = await apiFetch(url);
+    if (!data || !data.leaderboard || data.leaderboard.length === 0) {
       tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #94a3b8; padding: 1.5rem;">No games recorded yet for this filter.</td></tr>`;
       return;
     }
@@ -824,10 +816,7 @@ async function fetchUserStatsData() {
   container.innerHTML = `<div style="text-align: center; padding: 1.5rem; color: #94a3b8;">Loading career statistics...</div>`;
 
   try {
-    const res = await apiFetch("/api/stats");
-    if (!res.ok) throw new Error("Failed fetching stats");
-    const s = await res.json();
-
+    const s = await apiFetch("/api/stats");
     container.innerHTML = `
       <div class="stats-grid">
         <div class="stat-card">
@@ -897,10 +886,7 @@ async function fetchHistoryData() {
   tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #94a3b8; padding: 1.5rem;">Loading history...</td></tr>`;
 
   try {
-    const res = await apiFetch("/api/history?limit=30");
-    if (!res.ok) throw new Error("Failed fetching history");
-    const items = await res.json();
-
+    const items = await apiFetch("/api/history?limit=30");
     if (!items || items.length === 0) {
       tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #94a3b8; padding: 1.5rem;">No recent games found.</td></tr>`;
       return;
@@ -936,38 +922,9 @@ function escapeHtml(str) {
 // --- API Fetch Helper ---
 async function apiFetch(path, options = {}) {
   if (window.Ottomate && typeof window.Ottomate.api === "function") {
-    try {
-      const data = await window.Ottomate.api(path, options);
-      return { ok: true, status: 200, json: async () => data };
-    } catch (err) {
-      if (err.status === 401) onUserSignedOut();
-      return {
-        ok: false,
-        status: err.status || 500,
-        json: async () => ({ detail: err.message }),
-      };
-    }
+    return window.Ottomate.api(path, options);
   }
-  const headers = options.headers ? { ...options.headers } : {};
-  const token =
-    (typeof window.Ottomate?.getStoredAuthToken === "function"
-      ? window.Ottomate.getStoredAuthToken()
-      : null) ||
-    localStorage.getItem("ottomate_auth_token") ||
-    localStorage.getItem("auth_token") ||
-    "";
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
-  const opts = { ...options, headers };
-  const res = await fetch(path, opts);
-  if (res.status === 401) {
-    if (window.Ottomate && typeof window.Ottomate.clearAuthToken === "function") {
-      window.Ottomate.clearAuthToken();
-    }
-    onUserSignedOut();
-  }
-  return res;
+  return fetch(path, options).then((r) => (r.status === 204 ? null : r.json()));
 }
 
 // Authentication & Core Wiring
@@ -1059,9 +1016,9 @@ async function restoreSession() {
   }
 
   try {
-    const meRes = await apiFetch("/api/me");
-    if (meRes.ok) {
-      currentUser = await meRes.json();
+    const user = await apiFetch("/api/me");
+    if (user && user.email) {
+      currentUser = user;
       onUserSignedIn(currentUser);
     } else {
       onUserSignedOut();
