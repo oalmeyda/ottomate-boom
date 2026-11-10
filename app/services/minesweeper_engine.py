@@ -14,6 +14,8 @@ import random
 import re
 from typing import Any, Literal
 
+from ottomate_core.grid_engine import get_grid_neighbors as _core_get_neighbors
+
 MIN_GAME_DATE = "2026-10-01"
 
 DIFFICULTY_CONFIGS: dict[str, dict[str, int]] = {
@@ -54,15 +56,7 @@ def get_daily_seed(date_str: str, difficulty: str) -> str:
 
 def get_neighbors(row: int, col: int, rows: int, cols: int) -> list[tuple[int, int]]:
     """Return valid 8-directional neighbor coordinates for (row, col)."""
-    neighbors = []
-    for dr in (-1, 0, 1):
-        for dc in (-1, 0, 1):
-            if dr == 0 and dc == 0:
-                continue
-            nr, nc = row + dr, col + dc
-            if 0 <= nr < rows and 0 <= nc < cols:
-                neighbors.append((nr, nc))
-    return neighbors
+    return _core_get_neighbors(row, col, rows, cols, include_diagonals=True)
 
 
 def compute_3bv(rows: int, cols: int, mines: set[tuple[int, int]]) -> int:
