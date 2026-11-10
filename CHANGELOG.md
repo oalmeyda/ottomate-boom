@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.5] - 2026-11-10
+
+### Changed
+- **Consolidated API Client (`app/static/js/boom.js`)**:
+  - Delegated `apiFetch` directly to `window.Ottomate.api()`, removing obsolete custom `Response` polyfill adapter.
+- **Upgraded Core Dependency**: Bumped to `ottomate-core>=1.29.0,<1.30` vendoring wheel `1.29.0` with synthesized audio mute toggle (`Ottomate.audio`), daily challenge seed isolation, and error detail preservation.
+- **Cache-Busting Asset Alignment (`index.html`)**: Aligned static asset query parameters to `?v=0.1.5`.
+
 ## [0.1.4] - 2026-11-10
 
 ### Added
