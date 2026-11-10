@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3] - 2026-11-09
+
+### Fixed
+- **Win Banner Layout & Leaderboard Button Overlap**:
+  - Restructured `.win-banner` with flex-wrap and responsive gap (`gap: 0.85rem 1.25rem`) between `.win-banner-body` and `.win-banner-actions`.
+  - Added `flex: 1 1 260px; min-width: 0;` and word wrapping to `.win-subtitle` to prevent long status text from extending beneath the "View Leaderboard" button.
+  - Added dedicated styling for `.btn-win-leaderboard` with clear spacing and mobile full-width stacking under 640px.
+
 ## [0.1.2] - 2026-11-09
 
 ### Fixed

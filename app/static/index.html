@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ottomate Boom - Classic Minesweeper Daily &amp; Speed Challenge</title>
-  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg?v=0.1.2">
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg?v=0.1.3">
   <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="stylesheet" href="/core-static/css/ottomate-base.css?v=0.1.2">
-  <link rel="stylesheet" href="/core-static/css/ottomate-modals.css?v=0.1.2">
-  <link rel="stylesheet" href="/core-static/css/ottomate-people.css?v=0.1.2">
-  <link rel="stylesheet" href="/static/css/boom.css?v=0.1.2">
+  <link rel="stylesheet" href="/core-static/css/ottomate-base.css?v=0.1.3">
+  <link rel="stylesheet" href="/core-static/css/ottomate-modals.css?v=0.1.3">
+  <link rel="stylesheet" href="/core-static/css/ottomate-people.css?v=0.1.3">
+  <link rel="stylesheet" href="/static/css/boom.css?v=0.1.3">
   <script id="gsi-client" src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -17,12 +17,12 @@
   <header class="ottomate-header">
     <div class="brand" id="brand-home" onclick="setupLocalBoard(currentDifficulty, currentMode, currentDate)" role="button" tabindex="0" title="Ottomate Boom">
       <div class="brand-icon" id="brand-boom-icon" style="background: transparent; box-shadow: none;">
-        <img src="/static/favicon.svg?v=0.1.2" alt="Boom" style="width: 34px; height: 34px; display: block; border-radius: 8px;">
+        <img src="/static/favicon.svg?v=0.1.3" alt="Boom" style="width: 34px; height: 34px; display: block; border-radius: 8px;">
       </div>
       <div class="brand-text">
         <div class="brand-title-row">
           <h1>Ottomate Boom</h1>
-          <span id="app-version" class="version-tag">v0.1.2</span>
+          <span id="app-version" class="version-tag">v0.1.3</span>
         </div>
         <div class="brand-subtitle">Classic Minesweeper • <em>Daily challenges, 3 board sizes, global rankings</em></div>
       </div>
@@ -135,7 +135,7 @@
 
       <!-- Win Banner -->
       <div id="win-banner" class="win-banner" style="display: none;">
-        <div>
+        <div class="win-banner-body">
           <div class="win-title">🎉 Sector Cleared! Mission Accomplished!</div>
           <div class="win-subtitle">
             Time: <strong id="win-time-val" style="color: #f8fafc;">0s</strong> •
@@ -143,8 +143,8 @@
             Recorded to platform leaderboard &amp; Action Center!
           </div>
         </div>
-        <div>
-          <button class="btn btn-secondary" onclick="openLeaderboardModal()" style="font-weight: 700; background: #064e3b; border-color: #10b981; color: #a7f3d0;">
+        <div class="win-banner-actions">
+          <button class="btn btn-secondary btn-win-leaderboard" onclick="openLeaderboardModal()">
             View Leaderboard 🏆
           </button>
         </div>
@@ -251,8 +251,8 @@
   <div id="modal-container"></div>
 
   <!-- Scripts -->
-  <script src="/core-static/js/ottomate-header.js?v=0.1.2"></script>
-  <script src="/core-static/js/ottomate-people.js?v=0.1.2"></script>
-  <script src="/static/js/boom.js?v=0.1.2"></script>
+  <script src="/core-static/js/ottomate-header.js?v=0.1.3"></script>
+  <script src="/core-static/js/ottomate-people.js?v=0.1.3"></script>
+  <script src="/static/js/boom.js?v=0.1.3"></script>
 </body>
 </html>
