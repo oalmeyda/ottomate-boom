@@ -40,3 +40,4 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: /nonexistent
           CLOUDSDK_CONFIG: /nonexistent
         run: pytest -v
+

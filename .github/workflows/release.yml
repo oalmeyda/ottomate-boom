@@ -99,3 +99,4 @@ jobs:
           name: ${{ steps.version.outputs.tag }}
           body_path: ${{ steps.changelog.outputs.has_notes == 'true' && 'release_notes.md' || '' }}
           generate_release_notes: true
+
