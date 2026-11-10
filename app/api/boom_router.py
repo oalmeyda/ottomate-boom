@@ -63,7 +63,7 @@ def sync_boom_pending_action(target_email: str, date_str: str, is_completed: boo
             title="Ottomate Boom",
             subtitle=f"Daily Minesweeper ({date_str})",
             message="Today's Minesweeper board is waiting to be cleared!",
-            url="https://ottomate-game-boom.web.app",
+            url="https://ottomate-boom.web.app",
             icon="💣",
         )
     except Exception as exc:

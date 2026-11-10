@@ -7,7 +7,7 @@ from pathlib import Path
 
 from ottomate_core.config import configure_service
 
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 SERVICE_NAME = "ottomate-boom"
 APP_TITLE = "Ottomate Boom"
 
@@ -26,7 +26,7 @@ SERVICE_CARD_METADATA = {
     "category": "puzzles",
     "category_label": "Strategy Puzzles",
     "tagline": "Classic Minesweeper Daily & Speed Challenge",
-    "url": "https://ottomate-game-boom.web.app",
+    "url": "https://ottomate-boom.web.app",
     "icon": "💣",
     "description": "Classic Minesweeper puzzle challenge featuring Beginner (9x9, 10 mines), Intermediate (16x16, 40 mines), and Expert (30x16, 99 mines) boards with daily deterministic challenges, chord clicking, flag counters, customizable cell sizes, and global leaderboards.",
     "tags": ["Minesweeper", "Daily Challenge", "3 Board Sizes", "Leaderboards"],

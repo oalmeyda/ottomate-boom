@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-11-09
+
+### Fixed
+- **Google Sign-In & Auth Integration**: Integrated `Ottomate.setupSignIn` and `Ottomate.renderGoogleSignIn` to render the Google Sign-In button in both the header and the guest card.
+- **Authenticated API Fetch**: Routed all data calls (`/api/me`, `/api/daily/status`, `/api/game/finish`, `/api/stats`, `/api/history`, `/api/leaderboard`) through `apiFetch` with `Authorization: Bearer <token>`.
+- **Domain Migration to `ottomate-boom.web.app`**: Updated canonical service URL from `ottomate-game-boom.web.app` to `ottomate-boom.web.app`.
+- **People & Profile Modals**: Integrated with `Ottomate.people` for unified Directory and Profile modal dialogs.
+
 ## [0.1.0] - 2026-11-09
 
 ### Added

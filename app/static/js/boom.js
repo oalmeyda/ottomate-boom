@@ -696,7 +696,7 @@ async function submitFinishResult(status) {
       first_click: gameState.firstClick,
     };
 
-    const res = await fetch("/api/game/finish", {
+    const res = await apiFetch("/api/game/finish", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -773,7 +773,7 @@ function toggleFlagMode() {
 async function fetchDailyStatus() {
   if (!currentUser) return;
   try {
-    const res = await fetch(`/api/daily/status?date=${currentDate}`);
+    const res = await apiFetch(`/api/daily/status?date=${currentDate}`);
     if (res.ok) {
       const data = await res.json();
       updateDailyStatusBadges(data);
@@ -836,7 +836,7 @@ async function fetchLeaderboardData() {
     if (currentLbScope === "daily") {
       url += `&date=${currentDate}`;
     }
-    const res = await fetch(url);
+    const res = await apiFetch(url);
     if (!res.ok) throw new Error("Failed fetching leaderboard");
     const data = await res.json();
 
@@ -892,7 +892,7 @@ async function fetchUserStatsData() {
   container.innerHTML = `<div style="text-align: center; padding: 1.5rem; color: #94a3b8;">Loading career statistics...</div>`;
 
   try {
-    const res = await fetch("/api/stats");
+    const res = await apiFetch("/api/stats");
     if (!res.ok) throw new Error("Failed fetching stats");
     const s = await res.json();
 
@@ -965,7 +965,7 @@ async function fetchHistoryData() {
   tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #94a3b8; padding: 1.5rem;">Loading history...</td></tr>`;
 
   try {
-    const res = await fetch("/api/history?limit=30");
+    const res = await apiFetch("/api/history?limit=30");
     if (!res.ok) throw new Error("Failed fetching history");
     const items = await res.json();
 
@@ -1001,25 +1001,120 @@ function escapeHtml(str) {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+// --- API Fetch Helper ---
+async function apiFetch(path, options = {}) {
+  const headers = options.headers ? { ...options.headers } : {};
+  const token =
+    (typeof window.Ottomate?.getStoredAuthToken === "function"
+      ? window.Ottomate.getStoredAuthToken()
+      : null) ||
+    localStorage.getItem("ottomate_auth_token") ||
+    localStorage.getItem("auth_token") ||
+    "";
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  const opts = { ...options, headers };
+  const res = await fetch(path, opts);
+  if (res.status === 401) {
+    if (window.Ottomate && typeof window.Ottomate.clearAuthToken === "function") {
+      window.Ottomate.clearAuthToken();
+    }
+    onUserSignedOut();
+  }
+  return res;
+}
+
 // Authentication & Core Wiring
 async function initAuth() {
+  if (window.Ottomate) {
+    try {
+      if (window.Ottomate.people && typeof window.Ottomate.people.init === "function") {
+        window.Ottomate.people.init({
+          appName: "Ottomate Boom",
+          onError: (msg) => console.warn(msg),
+        });
+      }
+
+      await window.Ottomate.initHeader({
+        onSignOut: () => logout(),
+        onBrandClicked: () => setupLocalBoard(currentDifficulty, currentMode, currentDate),
+        onProfileClicked: () => showProfileModal(),
+        onDirectoryClicked: () => showDirectoryModal(),
+      });
+    } catch (err) {
+      console.warn("Ottomate header/people init error:", err);
+    }
+  }
+
+  let config = null;
   try {
     const cfgRes = await fetch("/api/config");
-    const cfg = await cfgRes.json();
+    if (cfgRes.ok) {
+      config = await cfgRes.json();
+    }
+  } catch (err) {
+    console.warn("Failed loading /api/config:", err);
+  }
 
-    if (cfg.dev_mode) {
-      const devRoot = document.getElementById("dev-signin-root");
-      if (devRoot) devRoot.style.display = "block";
-      const devBtn = document.getElementById("btn-dev-login");
-      if (devBtn) {
-        devBtn.onclick = async () => {
-          await fetch("/api/auth/dev-login", { method: "POST" });
-          window.location.reload();
+  if (config && window.Ottomate && typeof window.Ottomate.setupSignIn === "function") {
+    window.Ottomate.setupSignIn(config, async (token) => {
+      if (token && typeof window.Ottomate.storeAuthToken === "function") {
+        window.Ottomate.storeAuthToken(token);
+      }
+      await restoreSession();
+    });
+
+    // Also render Google Sign-In button on the hero guest card
+    if (config.google_client_id && typeof window.Ottomate.renderGoogleSignIn === "function") {
+      window.Ottomate.renderGoogleSignIn({
+        clientId: config.google_client_id,
+        rootId: "g-signin-root-guest",
+        width: 280,
+        size: "large",
+        onCredential: async (token) => {
+          if (token && typeof window.Ottomate.storeAuthToken === "function") {
+            window.Ottomate.storeAuthToken(token);
+          }
+          await restoreSession();
+        },
+      });
+    }
+
+    if (config.dev_mode) {
+      const devGuest = document.getElementById("dev-signin-root-guest");
+      const devGuestBtn = document.getElementById("btn-dev-login-guest");
+      if (devGuest) devGuest.style.display = "block";
+      if (devGuestBtn) {
+        devGuestBtn.style.display = "inline-block";
+        devGuestBtn.onclick = async () => {
+          if (typeof window.Ottomate.storeAuthToken === "function") {
+            window.Ottomate.storeAuthToken("dev-token", "dev");
+          }
+          await restoreSession();
         };
       }
     }
+  }
 
-    const meRes = await fetch("/api/me");
+  await restoreSession();
+}
+
+async function restoreSession() {
+  const token =
+    (typeof window.Ottomate?.getStoredAuthToken === "function"
+      ? window.Ottomate.getStoredAuthToken()
+      : null) ||
+    localStorage.getItem("ottomate_auth_token") ||
+    localStorage.getItem("auth_token");
+
+  if (!token) {
+    onUserSignedOut();
+    return;
+  }
+
+  try {
+    const meRes = await apiFetch("/api/me");
     if (meRes.ok) {
       currentUser = await meRes.json();
       onUserSignedIn(currentUser);
@@ -1027,7 +1122,8 @@ async function initAuth() {
       onUserSignedOut();
     }
   } catch (err) {
-    console.error("Auth init error:", err);
+    console.warn("Failed checking session:", err);
+    onUserSignedOut();
   }
 }
 
@@ -1040,18 +1136,25 @@ function onUserSignedIn(user) {
   const profileAvatar = document.getElementById("profile-avatar");
   const btnLogout = document.getElementById("btn-logout");
   const btnDir = document.getElementById("btn-directory");
+  const gSignin = document.getElementById("g-signin-root");
+  const devSignin = document.getElementById("dev-signin-root");
 
   if (guestCard) guestCard.style.display = "none";
   if (gameView) gameView.style.display = "block";
 
   if (profilePill) profilePill.style.display = "flex";
-  if (profileName) profileName.textContent = user.name || user.email.split("@")[0];
+  if (profileName) profileName.textContent = user.nickname || user.display_name || user.email.split("@")[0];
   if (profileAvatar) {
-    const initials = (user.name || user.email).substring(0, 2).toUpperCase();
-    profileAvatar.textContent = initials;
+    const name = user.nickname || user.display_name || user.email;
+    profileAvatar.textContent = name.substring(0, 2).toUpperCase();
   }
   if (btnLogout) btnLogout.style.display = "inline-block";
-  if (btnDir) btnDir.style.display = "inline-block";
+  if (btnDir && (user.system_role === "super_admin" || user.roles?.boom === "game_admin")) {
+    btnDir.style.display = "inline-block";
+  }
+
+  if (gSignin) gSignin.style.display = "none";
+  if (devSignin) devSignin.style.display = "none";
 
   fetchDailyStatus();
 }
@@ -1063,16 +1166,42 @@ function onUserSignedOut() {
   const profilePill = document.getElementById("profile-pill");
   const btnLogout = document.getElementById("btn-logout");
   const btnDir = document.getElementById("btn-directory");
+  const gSignin = document.getElementById("g-signin-root");
+  const devSignin = document.getElementById("dev-signin-root");
 
   if (guestCard) guestCard.style.display = "block";
   if (gameView) gameView.style.display = "none";
   if (profilePill) profilePill.style.display = "none";
   if (btnLogout) btnLogout.style.display = "none";
   if (btnDir) btnDir.style.display = "none";
+
+  if (gSignin) gSignin.style.display = "inline-flex";
+  if (devSignin) {
+    const isDev = Boolean(window.Ottomate?.state?.config?.dev_mode);
+    devSignin.style.display = isDev ? "inline-block" : "none";
+  }
+}
+
+function showProfileModal() {
+  if (window.Ottomate && window.Ottomate.people && typeof window.Ottomate.people.showProfileModal === "function") {
+    window.Ottomate.people.showProfileModal();
+  }
+}
+
+function showDirectoryModal() {
+  if (window.Ottomate && window.Ottomate.people && typeof window.Ottomate.people.showDirectoryModal === "function") {
+    window.Ottomate.people.showDirectoryModal();
+  }
 }
 
 async function logout() {
-  await fetch("/api/auth/logout", { method: "POST" });
+  try {
+    await fetch("/api/auth/logout", { method: "POST" });
+  } catch (_) {}
+  if (window.Ottomate && typeof window.Ottomate.clearAuthToken === "function") {
+    window.Ottomate.clearAuthToken();
+  }
+  onUserSignedOut();
   window.location.reload();
 }
 
