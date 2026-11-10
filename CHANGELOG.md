@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] - 2026-11-10
+
+### Added
+- **Core Grid Engine Integration (`app/services/boom_engine.py`)**:
+  - Delegated board neighbor coordinate resolution (`get_neighbors`) to `ottomate_core.grid_engine.get_grid_neighbors`.
+- **Synthesized Web Audio Engine (`app/static/js/boom.js`, `index.html`)**:
+  - Replaced local oscillator audio code with `/core-static/js/ottomate-audio.js`.
+  - Wired clicks, mine explosion blast, and victory fanfare.
+- **Shared API Helper**:
+  - Delegated `apiFetch` in `boom.js` to `window.Ottomate.api()`.
+- **Copier Answers Alignment**:
+  - Synchronized `.copier-answers.yml` to clean template ref `v1.28.4`.
+
+### Changed
+- **Upgraded Core Dependency**: Bumped to `ottomate-core>=1.28.4` with automated cache-buster query verification.
+- **Cache-Busting Asset Alignment (`index.html`)**: Aligned all static asset query parameters to `?v=0.1.4`.
+
 ## [0.1.3] - 2026-11-09
 
 ### Fixed
