@@ -168,16 +168,61 @@ body {
   background: #ef4444;
 }
 
-/* Stable min-widths for difficulty buttons on desktop so badges never shift button or toolbar size */
+.diff-dim {
+  font-size: 0.74rem;
+  opacity: 0.85;
+}
+
+/* Rock-solid fixed widths for all toolbar clusters on desktop so dates and badges NEVER shift sizing */
 @media (min-width: 641px) {
-  .toolbar-group-size .diff-btn[data-diff="beginner"] {
-    min-width: 122px;
+  .toolbar-group-size .seg-btn-group {
+    width: 396px;
+    display: flex;
   }
-  .toolbar-group-size .diff-btn[data-diff="intermediate"] {
-    min-width: 150px;
+  .toolbar-group-size .diff-btn {
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
+    padding: 0.32rem 0.2rem;
+    overflow: hidden;
   }
-  .toolbar-group-size .diff-btn[data-diff="expert"] {
-    min-width: 114px;
+  .toolbar-group-mode .seg-btn-group {
+    width: 160px;
+    display: flex;
+  }
+  .toolbar-group-mode .seg-btn {
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
+    padding: 0.32rem 0.2rem;
+  }
+  .toolbar-group-date .date-cluster {
+    width: 148px;
+    display: inline-flex;
+    justify-content: space-between;
+  }
+  .toolbar-group-date .btn-nav-arrow {
+    width: 28px;
+    padding: 0.32rem 0;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .toolbar-group-date .date-badge {
+    width: 86px;
+    min-width: 86px;
+    max-width: 86px;
+    padding: 0.32rem 0;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+  .toolbar-group-flag .btn-flag-mode {
+    width: 92px;
+    min-width: 92px;
+    max-width: 92px;
+    justify-content: center;
+    text-align: center;
+    flex-shrink: 0;
   }
 }
 
@@ -185,10 +230,10 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   line-height: 1;
   vertical-align: middle;
-  margin-left: 3px;
+  margin-left: 2px;
 }
 
 .diff-status-badge:empty {
@@ -637,14 +682,20 @@ body {
   .toolbar-label {
     display: none;
   }
-  .toolbar-group-size .diff-btn[data-diff="beginner"] {
-    min-width: 112px;
+  .diff-dim {
+    display: none;
   }
-  .toolbar-group-size .diff-btn[data-diff="intermediate"] {
-    min-width: 140px;
+  .toolbar-group-size .seg-btn-group {
+    width: 320px;
   }
-  .toolbar-group-size .diff-btn[data-diff="expert"] {
-    min-width: 104px;
+  .toolbar-group-mode .seg-btn-group {
+    width: 148px;
+  }
+  .toolbar-group-date .date-cluster {
+    width: 144px;
+  }
+  .toolbar-group-flag .btn-flag-mode {
+    width: 88px;
   }
 }
 
@@ -678,14 +729,16 @@ body {
   }
 
   .toolbar-group-size .seg-btn-group {
-    width: 100%;
+    width: 100% !important;
     display: flex;
     box-sizing: border-box;
   }
 
+  .toolbar-group-size .diff-btn,
   .toolbar-group-size .seg-btn {
+    flex: 1 1 0 !important;
+    width: 0 !important;
     min-width: 0 !important;
-    flex: 1 1 0;
     text-align: center;
     padding: 0.35rem 0.2rem;
     font-size: 0.8rem;

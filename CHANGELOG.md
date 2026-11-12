@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.3] - 2026-11-12
+
+### Fixed
+- **Rock-Solid Width and Zero Jitter Across Dates and Status Badges**:
+  - Replaced soft `min-width` constraints with locked cluster widths on desktop: `.toolbar-group-size .seg-btn-group` is locked to 396px with `flex: 1 1 0; width: 0; min-width: 0;` (132px each button), preventing difficulty buttons and segmented groups from expanding or contracting when daily badges (`✅` / `❌`) appear or disappear.
+  - Locked Mode segmented group to 160px (80px per button), Date cluster to 148px (with tabular numeric font), and Flag button to 92px.
+  - Fixed horizontal width jumping between solved dates (e.g. `2026-11-10`) and unsolved dates (e.g. `2026-11-11`), guaranteeing 100% constant toolbar dimensions.
+
 ## [2.0.2] - 2026-11-12
 
 ### Fixed
