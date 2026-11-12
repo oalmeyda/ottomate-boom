@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-11-12
+
+### Fixed
+- **Mobile Options Toolbar & Header Optimization**:
+  - Re-architected Minesweeper control toolbar for mobile viewports: size buttons now form a full-width responsive segmented bar (`Beginner`, `Intermediate`, `Expert` with equal flex distribution and dimensions hidden on mobile), eliminating horizontal text overflow.
+  - Hidden redundant uppercase labels (`SIZE:`, `MODE:`, `DATE:`) on mobile to recover ~50px horizontal space per row.
+  - Grouped Mode (`Daily` / `Practice`) and Date navigator into a single unified subrow on mobile viewports, preventing "Practice" and "▶" from clipping off-screen.
+  - Positioned the touch digging mode toggle as a sleek, centered pill button, cutting toolbar vertical footprint by ~50%.
+  - Upgraded to `ottomate-core==2.0.1` wheel with unified single-row mobile auth bar, improved Email Link pill styling, and anchored audio toggle.
+
 ## [2.0.0] - 2026-11-12
 
 ### Changed

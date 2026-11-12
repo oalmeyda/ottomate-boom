@@ -99,6 +99,10 @@ body {
   box-sizing: border-box;
 }
 
+.toolbar-subrow {
+  display: contents;
+}
+
 .toolbar-group {
   display: flex;
   align-items: center;
@@ -594,10 +598,89 @@ body {
   .boom-toolbar {
     flex-direction: column;
     align-items: stretch;
+    padding: 0.45rem 0.6rem;
+    gap: 0.45rem;
+    margin: 0 auto 0.65rem;
+    width: 100%;
+    box-sizing: border-box;
   }
 
-  .toolbar-group {
-    justify-content: space-between;
+  .toolbar-label {
+    display: none;
+  }
+
+  .diff-dim {
+    display: none;
+  }
+
+  .toolbar-group-size {
+    width: 100%;
+    margin: 0;
+  }
+
+  .toolbar-group-size .seg-btn-group {
+    width: 100%;
+    display: flex;
+    box-sizing: border-box;
+  }
+
+  .toolbar-group-size .seg-btn {
+    flex: 1 1 0;
+    text-align: center;
+    padding: 0.35rem 0.2rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .toolbar-subrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .toolbar-group-mode,
+  .toolbar-group-date {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .toolbar-group-mode .seg-btn {
+    padding: 0.3rem 0.55rem;
+    font-size: 0.8rem;
+  }
+
+  .date-cluster {
+    gap: 3px;
+  }
+
+  .date-badge {
+    padding: 0.3rem 0.55rem;
+    font-size: 0.8rem;
+  }
+
+  .btn-nav-arrow {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .toolbar-group-flag {
+    width: 100%;
+    justify-content: center;
+    display: flex;
+  }
+
+  .btn-flag-mode {
+    padding: 0.28rem 0.85rem;
+    font-size: 0.8rem;
+    border-radius: 9999px;
+  }
+
+  .boom-main {
+    padding: 0.5rem 0.5rem 3rem 0.5rem;
   }
 
   .digital-counter {

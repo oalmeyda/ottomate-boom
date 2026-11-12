@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ottomate Boom - Classic Minesweeper Daily &amp; Speed Challenge</title>
-  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg?v=2.0.0">
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg?v=2.0.1">
   <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="stylesheet" href="/core-static/css/ottomate-base.css?v=2.0.0">
-  <link rel="stylesheet" href="/core-static/css/ottomate-modals.css?v=2.0.0">
-  <link rel="stylesheet" href="/core-static/css/ottomate-people.css?v=2.0.0">
-  <link rel="stylesheet" href="/static/css/boom.css?v=2.0.0">
+  <link rel="stylesheet" href="/core-static/css/ottomate-base.css?v=2.0.1">
+  <link rel="stylesheet" href="/core-static/css/ottomate-modals.css?v=2.0.1">
+  <link rel="stylesheet" href="/core-static/css/ottomate-people.css?v=2.0.1">
+  <link rel="stylesheet" href="/static/css/boom.css?v=2.0.1">
   <script id="gsi-client" src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -17,12 +17,12 @@
   <header class="ottomate-header">
     <div class="brand" id="brand-home" onclick="setupLocalBoard(currentDifficulty, currentMode, currentDate)" role="button" tabindex="0" title="Ottomate Boom">
       <div class="brand-icon" id="brand-boom-icon" style="background: transparent; box-shadow: none;">
-        <img src="/static/favicon.svg?v=2.0.0" alt="Boom" style="width: 34px; height: 34px; display: block; border-radius: 8px;">
+        <img src="/static/favicon.svg?v=2.0.1" alt="Boom" style="width: 34px; height: 34px; display: block; border-radius: 8px;">
       </div>
       <div class="brand-text">
         <div class="brand-title-row">
           <h1>Ottomate Boom</h1>
-          <span id="app-version" class="version-tag">v2.0.0</span>
+          <span id="app-version" class="version-tag">v2.0.1</span>
         </div>
         <div class="brand-subtitle">Classic Minesweeper • <em>Daily challenges, 3 board sizes, global rankings</em></div>
       </div>
@@ -67,42 +67,44 @@
       <!-- Control Toolbar -->
       <div class="boom-toolbar">
         <!-- Difficulty Selector (Beginner / Intermediate / Expert) -->
-        <div class="toolbar-group">
+        <div class="toolbar-group toolbar-group-size">
           <span class="toolbar-label">Size:</span>
           <div class="seg-btn-group">
             <button class="seg-btn diff-btn active active-diff-beginner" data-diff="beginner" onclick="switchDifficulty('beginner')">
-              Beginner (9x9) <span id="status-badge-beginner"></span>
+              <span class="diff-name">Beginner</span><span class="diff-dim"> (9×9)</span> <span id="status-badge-beginner"></span>
             </button>
             <button class="seg-btn diff-btn" data-diff="intermediate" onclick="switchDifficulty('intermediate')">
-              Intermediate (16x16) <span id="status-badge-intermediate"></span>
+              <span class="diff-name">Intermediate</span><span class="diff-dim"> (16×16)</span> <span id="status-badge-intermediate"></span>
             </button>
             <button class="seg-btn diff-btn" data-diff="expert" onclick="switchDifficulty('expert')">
-              Expert (30x16) <span id="status-badge-expert"></span>
+              <span class="diff-name">Expert</span><span class="diff-dim"> (30×16)</span> <span id="status-badge-expert"></span>
             </button>
           </div>
         </div>
 
-        <!-- Mode Selector (Daily / Casual) -->
-        <div class="toolbar-group">
-          <span class="toolbar-label">Mode:</span>
-          <div class="seg-btn-group">
-            <button class="seg-btn mode-btn active" data-mode="daily" onclick="switchMode('daily')">📅 Daily</button>
-            <button class="seg-btn mode-btn" data-mode="casual" onclick="switchMode('casual')">🎮 Practice</button>
+        <div class="toolbar-subrow">
+          <!-- Mode Selector (Daily / Casual) -->
+          <div class="toolbar-group toolbar-group-mode">
+            <span class="toolbar-label">Mode:</span>
+            <div class="seg-btn-group">
+              <button class="seg-btn mode-btn active" data-mode="daily" onclick="switchMode('daily')">📅 Daily</button>
+              <button class="seg-btn mode-btn" data-mode="casual" onclick="switchMode('casual')">🎮 Practice</button>
+            </div>
           </div>
-        </div>
 
-        <!-- Date Navigator (for Daily mode) -->
-        <div class="toolbar-group" id="date-navigator-cluster">
-          <span class="toolbar-label">Date:</span>
-          <div class="date-cluster">
-            <button class="btn-nav-arrow" onclick="changeDateByDays(-1)" title="Previous Day">◀</button>
-            <span id="date-display-text" class="date-badge">2026-11-09</span>
-            <button class="btn-nav-arrow" onclick="changeDateByDays(1)" title="Next Day">▶</button>
+          <!-- Date Navigator (for Daily mode) -->
+          <div class="toolbar-group toolbar-group-date" id="date-navigator-cluster">
+            <span class="toolbar-label">Date:</span>
+            <div class="date-cluster">
+              <button class="btn-nav-arrow" onclick="changeDateByDays(-1)" title="Previous Day">◀</button>
+              <span id="date-display-text" class="date-badge">2026-11-09</span>
+              <button class="btn-nav-arrow" onclick="changeDateByDays(1)" title="Next Day">▶</button>
+            </div>
           </div>
         </div>
 
         <!-- Mobile Touch Flag Mode Toggle -->
-        <div class="toolbar-group">
+        <div class="toolbar-group toolbar-group-flag">
           <button id="btn-flag-toggle" class="btn-flag-mode" onclick="toggleFlagMode()" title="Toggle Digging or Flagging on touch">
             ⛏️ Digging
           </button>
@@ -251,9 +253,9 @@
   <div id="modal-container"></div>
 
   <!-- Scripts -->
-  <script src="/core-static/js/ottomate-header.js?v=2.0.0"></script>
-  <script src="/core-static/js/ottomate-people.js?v=2.0.0"></script>
-  <script src="/core-static/js/ottomate-audio.js?v=2.0.0"></script>
-  <script src="/static/js/boom.js?v=2.0.0"></script>
+  <script src="/core-static/js/ottomate-header.js?v=2.0.1"></script>
+  <script src="/core-static/js/ottomate-people.js?v=2.0.1"></script>
+  <script src="/core-static/js/ottomate-audio.js?v=2.0.1"></script>
+  <script src="/static/js/boom.js?v=2.0.1"></script>
 </body>
 </html>
