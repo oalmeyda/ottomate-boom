@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2] - 2026-11-12
+
+### Fixed
+- **Toolbar Layout Stability & Constant Height Across Date Changes**:
+  - Enforced `flex-wrap: nowrap` on `.boom-toolbar` on desktop viewports to strictly prevent the Digging mode button from wrapping onto an orphan second row.
+  - Implemented stable `min-width` constraints on desktop difficulty buttons (`Beginner` 122px, `Intermediate` 150px, `Expert` 114px) and added `.diff-status-badge`, ensuring daily completion badges (`✅` / `❌`) never shift button widths or cause toolbar layout reflows when changing dates.
+  - Added medium desktop / tablet viewport adaptation (`641px`–`980px`) that hides verbose uppercase labels (`SIZE:`, `MODE:`, `DATE:`) to guarantee all controls remain cleanly on a single line down to tablet widths.
+  - Added `clearDailyStatusBadges()` to clear daily badges immediately upon date/mode changes, preventing momentary layout or state flicker.
+
 ## [2.0.1] - 2026-11-12
 
 ### Fixed

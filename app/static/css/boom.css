@@ -85,16 +85,16 @@ body {
 /* Control Toolbar */
 .boom-toolbar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   width: fit-content;
   max-width: 100%;
   background: #1e293b;
   border: 1px solid var(--boom-border);
   border-radius: 12px;
-  padding: 0.6rem 1rem;
+  padding: 0.5rem 0.85rem;
   margin: 0 auto 1rem;
   box-sizing: border-box;
 }
@@ -106,15 +106,17 @@ body {
 .toolbar-group {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
+  flex-shrink: 0;
 }
 
 .toolbar-label {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 /* Segmented Control Buttons */
@@ -124,18 +126,24 @@ body {
   padding: 3px;
   border-radius: 8px;
   border: 1px solid #334155;
+  box-sizing: border-box;
 }
 
 .seg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   color: #94a3b8;
   border: none;
-  padding: 0.35rem 0.75rem;
-  font-size: 0.84rem;
+  padding: 0.32rem 0.6rem;
+  font-size: 0.82rem;
   font-weight: 600;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
+  white-space: nowrap;
+  box-sizing: border-box;
 }
 
 .seg-btn:hover {
@@ -160,11 +168,38 @@ body {
   background: #ef4444;
 }
 
+/* Stable min-widths for difficulty buttons on desktop so badges never shift button or toolbar size */
+@media (min-width: 641px) {
+  .toolbar-group-size .diff-btn[data-diff="beginner"] {
+    min-width: 122px;
+  }
+  .toolbar-group-size .diff-btn[data-diff="intermediate"] {
+    min-width: 150px;
+  }
+  .toolbar-group-size .diff-btn[data-diff="expert"] {
+    min-width: 114px;
+  }
+}
+
+.diff-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  line-height: 1;
+  vertical-align: middle;
+  margin-left: 3px;
+}
+
+.diff-status-badge:empty {
+  display: none;
+}
+
 /* Date Navigator */
 .date-cluster {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 .btn-nav-arrow {
@@ -172,9 +207,9 @@ body {
   border: 1px solid #334155;
   color: #94a3b8;
   border-radius: 6px;
-  padding: 0.35rem 0.55rem;
+  padding: 0.32rem 0.5rem;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   line-height: 1;
 }
 
@@ -187,10 +222,13 @@ body {
   background: #0f172a;
   border: 1px solid #334155;
   color: #f8fafc;
-  padding: 0.35rem 0.7rem;
+  padding: 0.32rem 0.6rem;
   border-radius: 6px;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
+  min-width: 86px;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 /* Mobile Touch Flag Mode Toggle */
@@ -201,12 +239,13 @@ body {
   background: #0f172a;
   border: 1px solid #334155;
   color: #94a3b8;
-  padding: 0.35rem 0.75rem;
+  padding: 0.32rem 0.7rem;
   border-radius: 8px;
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .btn-flag-mode.active {
@@ -589,6 +628,26 @@ body {
   border-left: 3px solid #3b82f6;
 }
 
+/* Medium desktop & tablet screens (under 980px down to mobile 640px) */
+@media (max-width: 980px) and (min-width: 641px) {
+  .boom-toolbar {
+    gap: 0.35rem;
+    padding: 0.45rem 0.6rem;
+  }
+  .toolbar-label {
+    display: none;
+  }
+  .toolbar-group-size .diff-btn[data-diff="beginner"] {
+    min-width: 112px;
+  }
+  .toolbar-group-size .diff-btn[data-diff="intermediate"] {
+    min-width: 140px;
+  }
+  .toolbar-group-size .diff-btn[data-diff="expert"] {
+    min-width: 104px;
+  }
+}
+
 /* Small screens responsiveness */
 @media (max-width: 640px) {
   :root {
@@ -625,6 +684,7 @@ body {
   }
 
   .toolbar-group-size .seg-btn {
+    min-width: 0 !important;
     flex: 1 1 0;
     text-align: center;
     padding: 0.35rem 0.2rem;

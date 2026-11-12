@@ -666,6 +666,7 @@ function switchMode(mode) {
     dateCluster.style.display = (mode === "daily") ? "inline-flex" : "none";
   }
 
+  clearDailyStatusBadges();
   setupLocalBoard(currentDifficulty, currentMode, currentDate);
   if (mode === "daily") {
     fetchDailyStatus();
@@ -684,6 +685,7 @@ function changeDateByDays(delta) {
   const dateText = document.getElementById("date-display-text");
   if (dateText) dateText.textContent = currentDate;
 
+  clearDailyStatusBadges();
   setupLocalBoard(currentDifficulty, currentMode, currentDate);
   fetchDailyStatus();
 }
@@ -695,6 +697,15 @@ function toggleFlagMode() {
     btn.classList.toggle("active", flagMode);
     btn.textContent = flagMode ? "🚩 Flagging" : "⛏️ Digging";
   }
+}
+
+function clearDailyStatusBadges() {
+  const bBadge = document.getElementById("status-badge-beginner");
+  const iBadge = document.getElementById("status-badge-intermediate");
+  const eBadge = document.getElementById("status-badge-expert");
+  if (bBadge) bBadge.textContent = "";
+  if (iBadge) iBadge.textContent = "";
+  if (eBadge) eBadge.textContent = "";
 }
 
 // Daily Status Check
