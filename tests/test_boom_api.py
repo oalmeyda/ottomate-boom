@@ -147,6 +147,7 @@ def test_leaderboard_multi_player_ranking(isolated_fake_db):
             "status": "won",
             "elapsed_seconds": 35,
             "clicks": 30,
+            "cells_revealed": 216,
         },
     )
 
@@ -161,6 +162,7 @@ def test_leaderboard_multi_player_ranking(isolated_fake_db):
             "status": "won",
             "elapsed_seconds": 95,
             "clicks": 60,
+            "cells_revealed": 216,
         },
     )
 
@@ -193,6 +195,7 @@ def test_action_center_daily_sync(isolated_fake_db):
             "date": "2026-11-09",
             "status": "won",
             "elapsed_seconds": 22,
+            "cells_revealed": 71,
         },
     )
 
@@ -201,3 +204,69 @@ def test_action_center_daily_sync(isolated_fake_db):
     assert after_status.status_code == 200
     assert after_status.json()["is_daily_completed"] is True
     assert after_status.json()["beginner_status"] == "won"
+
+
+def test_game_finish_win_validation(isolated_fake_db):
+    """Validate win integrity constraints on /api/game/finish."""
+    client = _make_client_for_user("validator@example.com", "Validator")
+
+    # 1. Status won with cells_revealed < safe cells must return 400
+    bad_res = client.post(
+        "/api/game/finish",
+        json={
+            "game_id": "cheat_game_1",
+            "difficulty": "beginner",
+            "mode": "casual",
+            "status": "won",
+            "elapsed_seconds": 10,
+            "cells_revealed": 0,
+        },
+    )
+    assert bad_res.status_code == 400
+    assert "Invalid win state" in bad_res.json()["detail"]
+
+    # 2. Status won with elapsed_seconds < 1 must return 400
+    bad_time = client.post(
+        "/api/game/finish",
+        json={
+            "game_id": "cheat_game_2",
+            "difficulty": "beginner",
+            "mode": "casual",
+            "status": "won",
+            "elapsed_seconds": 0,
+            "cells_revealed": 71,
+        },
+    )
+    assert bad_time.status_code == 400
+    assert "Invalid elapsed_seconds" in bad_time.json()["detail"]
+
+    # 3. Status won with valid safe cells & elapsed seconds must succeed
+    good_res = client.post(
+        "/api/game/finish",
+        json={
+            "game_id": "valid_win_1",
+            "difficulty": "beginner",
+            "mode": "casual",
+            "status": "won",
+            "elapsed_seconds": 15,
+            "cells_revealed": 71,
+        },
+    )
+    assert good_res.status_code == 200
+    assert good_res.json()["status"] == "won"
+
+    # 4. Status lost with 0 cells or 0 elapsed seconds is permitted
+    lost_res = client.post(
+        "/api/game/finish",
+        json={
+            "game_id": "lost_game_1",
+            "difficulty": "beginner",
+            "mode": "casual",
+            "status": "lost",
+            "elapsed_seconds": 0,
+            "cells_revealed": 1,
+        },
+    )
+    assert lost_res.status_code == 200
+    assert lost_res.json()["status"] == "lost"
+

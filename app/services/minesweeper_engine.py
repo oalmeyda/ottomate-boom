@@ -14,6 +14,7 @@ import random
 import re
 from typing import Any, Literal
 
+from ottomate_core.daily import generate_deterministic_daily_seed
 from ottomate_core.grid_engine import get_grid_neighbors as _core_get_neighbors
 
 MIN_GAME_DATE = "2026-10-01"
@@ -50,8 +51,7 @@ def get_daily_seed(date_str: str, difficulty: str) -> str:
     diff = difficulty.lower().strip()
     if diff not in DIFFICULTY_CONFIGS:
         diff = "beginner"
-    raw = f"ottomate_boom_{valid_date}_{diff}"
-    return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
+    return generate_deterministic_daily_seed("ottomate-boom", valid_date, salt=diff)
 
 
 def get_neighbors(row: int, col: int, rows: int, cols: int) -> list[tuple[int, int]]:

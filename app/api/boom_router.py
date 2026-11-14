@@ -186,14 +186,31 @@ def execute_game_action(
 @router.post("/game/finish")
 def record_finished_game(
     req: GameFinishRequest,
+    acting_as: str | None = Query(default=None),
     user: User = Depends(get_current_user),
     db: Any = None,
 ) -> dict[str, Any]:
     """Persist completed game outcome from client with statistics and Action Center synchronization."""
-    target_email = _resolve_target_email(user)
+    target_email = _resolve_target_email(user, acting_as)
     db = db or database()
     now_iso = datetime.now(timezone.utc).isoformat()
     valid_date = validate_date_str(req.date) if req.mode == "daily" else None
+
+    # Validate win integrity
+    if req.status == "won":
+        diff_cfg = DIFFICULTY_CONFIGS.get(req.difficulty.lower())
+        if diff_cfg:
+            expected_safe_cells = (diff_cfg["rows"] * diff_cfg["cols"]) - diff_cfg["mines"]
+            if req.cells_revealed < expected_safe_cells:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Invalid win state: cells_revealed ({req.cells_revealed}) < required safe cells ({expected_safe_cells}).",
+                )
+        if req.elapsed_seconds < 1:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid elapsed_seconds for a won game (must be at least 1).",
+            )
 
     doc_ref = db.collection(GAMES_COLLECTION).document(req.game_id)
     doc_data = {

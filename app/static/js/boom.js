@@ -932,10 +932,7 @@ function escapeHtml(str) {
 
 // --- API Fetch Helper ---
 async function apiFetch(path, options = {}) {
-  if (window.Ottomate && typeof window.Ottomate.api === "function") {
-    return window.Ottomate.api(path, options);
-  }
-  return fetch(path, options).then((r) => (r.status === 204 ? null : r.json()));
+  return window.Ottomate.api(path, options);
 }
 
 // Authentication & Core Wiring
@@ -1097,9 +1094,6 @@ function showDirectoryModal() {
 }
 
 async function logout() {
-  try {
-    await fetch("/api/auth/logout", { method: "POST" });
-  } catch (_) {}
   if (window.Ottomate && typeof window.Ottomate.clearAuthToken === "function") {
     window.Ottomate.clearAuthToken();
   }
