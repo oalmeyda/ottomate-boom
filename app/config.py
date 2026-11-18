@@ -7,7 +7,7 @@ from pathlib import Path
 
 from ottomate_core.config import configure_service
 
-VERSION = "2.0.5"
+VERSION = "2.1.0"
 SERVICE_NAME = "ottomate-boom"
 APP_TITLE = "Ottomate Boom"
 

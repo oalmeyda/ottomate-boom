@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-11-18
+
+### Changed
+- **Stateless Cloud Run Board Persistence (`app/api/boom_router.py`, `app/services/minesweeper_engine.py`)**:
+  - Removed the process-local `_ACTIVE_BOARDS` in-memory cache from `boom_router.py` and added `MinesweeperBoard.to_persistence_dict()` / `from_persistence_dict()` backed directly by Firestore `board_state`, making live game sessions 100% stateless across Cloud Run autoscaling instances.
+- **Cold-Start & Core Upgrade**:
+  - Upgraded to `ottomate-core>=2.1.0,<3` and pre-compiled Python bytecode `Dockerfile` template.
+
 ## [2.0.5] - 2026-11-16
 
 ### Changed

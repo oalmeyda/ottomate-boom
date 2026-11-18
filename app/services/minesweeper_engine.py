@@ -407,3 +407,45 @@ class MinesweeperBoard:
             "elapsed_seconds": self.elapsed_seconds,
             "grid": grid,
         }
+
+    def to_persistence_dict(self) -> dict[str, Any]:
+        """Serializes full board state for stateless Firestore persistence across Cloud Run instances."""
+        return {
+            "difficulty": self.difficulty,
+            "seed": self.seed,
+            "is_daily": self.is_daily,
+            "date_str": self.date_str,
+            "status": self.status,
+            "mines": [list(p) for p in sorted(self.mines)],
+            "revealed": [list(p) for p in sorted(self.revealed)],
+            "flagged": [list(p) for p in sorted(self.flagged)],
+            "first_click": list(self.first_click) if self.first_click else None,
+            "exploded_at": list(self.exploded_at) if self.exploded_at else None,
+            "elapsed_seconds": self.elapsed_seconds,
+            "clicks": self.clicks,
+            "three_bv": self.three_bv,
+        }
+
+    @classmethod
+    def from_persistence_dict(cls, payload: dict[str, Any]) -> "MinesweeperBoard":
+        """Reconstructs a `MinesweeperBoard` from Firestore persistence payload."""
+        board = cls(
+            difficulty=payload.get("difficulty", "beginner"),
+            seed=payload.get("seed"),
+            is_daily=bool(payload.get("is_daily", False)),
+            date_str=payload.get("date_str"),
+        )
+        if "mines" in payload and payload["mines"] is not None:
+            board.mines = {(int(r), int(c)) for r, c in payload["mines"]}
+            board._recompute_counts()
+        board.revealed = {(int(r), int(c)) for r, c in (payload.get("revealed") or [])}
+        board.flagged = {(int(r), int(c)) for r, c in (payload.get("flagged") or [])}
+        fc = payload.get("first_click")
+        board.first_click = (int(fc[0]), int(fc[1])) if fc else None
+        ex = payload.get("exploded_at")
+        board.exploded_at = (int(ex[0]), int(ex[1])) if ex else None
+        board.status = payload.get("status", "not_started")
+        board.elapsed_seconds = int(payload.get("elapsed_seconds", 0))
+        board.clicks = int(payload.get("clicks", 0))
+        board.three_bv = int(payload.get("three_bv", board.three_bv))
+        return board

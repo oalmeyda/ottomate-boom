@@ -42,9 +42,6 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["boom"])
 
-# In-memory board cache for active live sessions (falls back to Firestore)
-_ACTIVE_BOARDS: dict[str, MinesweeperBoard] = {}
-
 
 def _resolve_target_email(user: User, requested_email: str | None = None) -> str:
     return resolve_acting_target(user, requested_email, action="play")
@@ -90,7 +87,6 @@ def start_new_game(
         is_daily=(req.mode == "daily"),
         date_str=date_str,
     )
-    _ACTIVE_BOARDS[game_id] = board
 
     db = db or database()
     now_iso = datetime.now(timezone.utc).isoformat()
@@ -108,6 +104,7 @@ def start_new_game(
         "three_bv": board.three_bv,
         "elapsed_seconds": 0,
         "clicks": 0,
+        "board_state": board.to_persistence_dict(),
         "created_at": now_iso,
     }
     db.collection(GAMES_COLLECTION).document(game_id).set(record)
@@ -128,26 +125,27 @@ def execute_game_action(
     user: User = Depends(get_current_user),
     db: Any = None,
 ) -> dict[str, Any]:
-    """Execute live reveal, flag, or chord action on an active game board."""
+    """Execute live reveal, flag, or chord action on an active game board (stateless via Firestore)."""
     target_email = _resolve_target_email(user)
-    board = _ACTIVE_BOARDS.get(req.game_id)
     db = db or database()
 
-    if not board:
-        # Check Firestore to verify game existence
-        doc = db.collection(GAMES_COLLECTION).document(req.game_id).get()
-        if not doc.exists:
-            raise HTTPException(status_code=404, detail="Game not found")
-        data = doc.to_dict() or {}
-        if data.get("user_email") != target_email:
-            raise HTTPException(status_code=403, detail="Not authorized for this game")
+    doc_ref = db.collection(GAMES_COLLECTION).document(req.game_id)
+    doc = doc_ref.get()
+    if not doc.exists:
+        raise HTTPException(status_code=404, detail="Game not found")
+    data = doc.to_dict() or {}
+    if data.get("user_email") != target_email:
+        raise HTTPException(status_code=403, detail="Not authorized for this game")
+
+    if data.get("board_state"):
+        board = MinesweeperBoard.from_persistence_dict(data["board_state"])
+    else:
         board = MinesweeperBoard(
             difficulty=data.get("difficulty", "beginner"),
             seed=data.get("seed"),
             is_daily=(data.get("mode") == "daily"),
             date_str=data.get("date"),
         )
-        _ACTIVE_BOARDS[req.game_id] = board
 
     board.elapsed_seconds = max(board.elapsed_seconds, req.elapsed_seconds)
 
@@ -163,19 +161,18 @@ def execute_game_action(
     if not res.get("success"):
         raise HTTPException(status_code=400, detail=res.get("error", "Action failed"))
 
-    # If game ended, record completion
+    update_fields: dict[str, Any] = {
+        "status": board.status,
+        "elapsed_seconds": board.elapsed_seconds,
+        "clicks": board.clicks,
+        "board_state": board.to_persistence_dict(),
+    }
     if board.status in ("won", "lost"):
-        now_iso = datetime.now(timezone.utc).isoformat()
-        db.collection(GAMES_COLLECTION).document(req.game_id).update(
-            {
-                "status": board.status,
-                "elapsed_seconds": board.elapsed_seconds,
-                "clicks": board.clicks,
-                "completed_at": now_iso,
-            }
-        )
+        update_fields["completed_at"] = datetime.now(timezone.utc).isoformat()
         if board.status == "won" and board.is_daily and board.date_str:
             sync_boom_pending_action(target_email, board.date_str, is_completed=True)
+
+    doc_ref.update(update_fields)
 
     client_state = board.to_client_state()
     client_state["game_id"] = req.game_id
@@ -230,9 +227,6 @@ def record_finished_game(
         "completed_at": now_iso,
     }
     doc_ref.set(doc_data, merge=True)
-
-    # Clean up memory cache
-    _ACTIVE_BOARDS.pop(req.game_id, None)
 
     # Sync daily completion
     if req.status == "won" and req.mode == "daily" and valid_date:
