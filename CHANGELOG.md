@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2026-11-22
+
+### Security
+- **Prevent Cross-User `game_id` Overwrite & Replay on `POST /api/game/finish` (`app/api/boom_router.py`)**:
+  - Verified existing Firestore document ownership before writing game completion records (returning `HTTP 403` if `game_id` belongs to another player and `HTTP 409` if already `won`/`lost`).
+  - Upgraded to `ottomate-core>=2.1.1,<3` (strict restricted-onboarding enforcement, atomic `daily_completions`, cached `/api/config`).
+
 ## [2.1.0] - 2026-11-18
 
 ### Changed

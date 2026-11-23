@@ -270,3 +270,28 @@ def test_game_finish_win_validation(isolated_fake_db):
     assert lost_res.status_code == 200
     assert lost_res.json()["status"] == "lost"
 
+
+def test_game_finish_prevents_cross_user_overwrite_and_resubmission(isolated_fake_db):
+    """Ensure /api/game/finish blocks cross-user game_id overwrite (403) and duplicate finish (409)."""
+    alice = _make_client_for_user("alice@example.com", "Alice")
+    win_payload = {
+        "game_id": "protected_game_1",
+        "difficulty": "beginner",
+        "mode": "daily",
+        "date": "2026-11-22",
+        "status": "won",
+        "elapsed_seconds": 25,
+        "cells_revealed": 71,
+    }
+    assert alice.post("/api/game/finish", json=win_payload).status_code == 200
+
+    # Same user cannot overwrite an already-finished game
+    replay = alice.post("/api/game/finish", json={**win_payload, "elapsed_seconds": 1})
+    assert replay.status_code == 409
+
+    # Different user cannot overwrite Alice's game_id
+    mallory = _make_client_for_user("mallory@example.com", "Mallory")
+    hijack = mallory.post("/api/game/finish", json={**win_payload, "elapsed_seconds": 1})
+    assert hijack.status_code == 403
+
+

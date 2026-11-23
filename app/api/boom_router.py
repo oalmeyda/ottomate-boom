@@ -210,6 +210,21 @@ def record_finished_game(
             )
 
     doc_ref = db.collection(GAMES_COLLECTION).document(req.game_id)
+    existing_snap = doc_ref.get()
+    if existing_snap.exists:
+        existing_data = existing_snap.to_dict() or {}
+        existing_owner = existing_data.get("user_email")
+        if existing_owner and existing_owner != target_email:
+            raise HTTPException(
+                status_code=403,
+                detail="Not authorized to modify another player's game record.",
+            )
+        if existing_data.get("status") in ("won", "lost"):
+            raise HTTPException(
+                status_code=409,
+                detail="Game outcome has already been recorded for this game_id.",
+            )
+
     doc_data = {
         "game_id": req.game_id,
         "user_email": target_email,
